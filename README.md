@@ -307,6 +307,6 @@ Released under the [MIT License](LICENSE). See `LICENSE` for details.
 **DualQ** · Team ID `VTU-QFF-HC-0079` · Tier `Both`
 · Built with ⚛️ Qiskit for the VTU-QFF Hackathon
 
-[⬆ Back to Top](#DualQ)
+[⬆ Back to Top](#dualq)
 
 </div>
