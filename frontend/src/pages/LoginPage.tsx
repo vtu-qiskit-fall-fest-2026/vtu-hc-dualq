@@ -70,6 +70,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
           paddingBottom: '20px',
           borderBottom: '1px solid var(--color-border)'
         }}
@@ -144,8 +146,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           margin: '32px auto', 
           width: '100%',
           display: 'grid',
-          gridTemplateColumns: 'minmax(380px, 460px) 1fr',
-          gap: '32px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+          gap: '24px',
           alignItems: 'start'
         }}
       >

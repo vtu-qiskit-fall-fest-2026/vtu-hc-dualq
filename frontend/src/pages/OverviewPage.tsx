@@ -576,8 +576,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         }}
       >
         {/* Time Horizon Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#FFFFFF', padding: '4px', borderRadius: '6px', border: '1px solid var(--color-border)' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', padding: '0 6px' }}>Horizon:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#FFFFFF', padding: '4px', borderRadius: '6px', border: '1px solid var(--color-border)', overflowX: 'auto', maxWidth: '100%' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', padding: '0 6px', flexShrink: 0 }}>Horizon:</span>
           {(['live', '24h', '7d', '30d'] as TimeHorizon[]).map(t => (
             <button
               key={t}
@@ -593,7 +593,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 fontWeight: 600,
                 padding: '4px 10px',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
             >
               {t === 'live' ? '🔴 Live Stream' : t === '24h' ? 'Today (24h)' : t === '7d' ? 'Past 7 Days' : 'Past Month'}
@@ -602,8 +603,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
 
         {/* Payment Rail Filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>Rails:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', overflowX: 'auto', maxWidth: '100%' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', flexShrink: 0 }}>Rails:</span>
           {[
             { id: 'ALL', label: 'All Indian Rails' },
             { id: 'UPI', label: 'UPI 2.0' },
@@ -626,7 +627,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 fontWeight: 600,
                 padding: '4px 10px',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
             >
               {rail.label}
@@ -637,7 +639,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           <button
             onClick={handleSimulateIncomingTxn}
             className="btn btn-primary btn-sm"
-            style={{ padding: '5px 10px', gap: '5px' }}
+            style={{ padding: '5px 10px', gap: '5px', flexShrink: 0 }}
             title="Inject a real-time incoming transaction through the quantum pipeline"
           >
             <PlusCircle size={13} />
@@ -647,7 +649,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       </div>
 
       {/* 3. DYNAMIC METRIC KPI CARDS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: '12px', marginBottom: '24px' }}>
         <MetricCard
           title="Total Transactions"
           value={dynamicKpi.total}
@@ -1273,7 +1275,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       </div>
 
       {/* 6. CHARTS ROW */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px', marginBottom: '24px' }}>
         {/* Transaction Volume Chart */}
         <div className="card">
           <div className="card-header">
@@ -1340,6 +1342,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             <div className="card-title">Live Audited Transaction Stream</div>
             <div className="card-subtitle">
               Incoming Indian payments evaluated by DualQ QSVM. Take immediate officer actions inline:
+            </div>
+            <div className="mobile-only" style={{ fontSize: '11px', color: 'var(--color-blue)', marginTop: '4px', fontWeight: 500 }}>
+              👉 Swipe table left/right to view all fields & actions
             </div>
           </div>
 

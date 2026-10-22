@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
+import { MobileNav } from './components/MobileNav';
 import { TransactionDetails } from './components/TransactionDetails';
 import { OverviewPage } from './pages/OverviewPage';
 import { TransactionsPage } from './pages/TransactionsPage';
@@ -18,6 +19,7 @@ export const App: React.FC = () => {
   const [isSwitchingRole, setIsSwitchingRole] = useState<boolean>(false);
   const [activePage, setActivePage] = useState<NavigationPage>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // If not logged in or in the middle of switching accounts/roles, show LoginPage
@@ -75,12 +77,20 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      {/* Left Sidebar */}
+      {/* Left Sidebar (Desktop Sticky + Mobile Off-Canvas Drawer) */}
       <Sidebar
         activePage={activePage}
         onNavigate={setActivePage}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+        currentUser={currentUser}
+        onSwitchRole={() => setIsSwitchingRole(true)}
+        onLogout={() => {
+          setCurrentUser(null);
+          setStoredUser(null);
+        }}
       />
 
       {/* Main Content Area */}
@@ -93,8 +103,8 @@ export const App: React.FC = () => {
             setStoredUser(null);
           }}
           onSwitchRole={() => setIsSwitchingRole(true)}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           onRefresh={() => {
-            // Instant visual feedback for user
             const el = document.querySelector('.main-wrapper') as HTMLElement | null;
             if (el) {
               el.style.opacity = '0.7';
@@ -109,6 +119,13 @@ export const App: React.FC = () => {
           {renderActivePage()}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileNav
+        activePage={activePage}
+        onNavigate={setActivePage}
+        onOpenMenu={() => setIsMobileMenuOpen(true)}
+      />
 
       {/* Transaction Details Modal */}
       <TransactionDetails
