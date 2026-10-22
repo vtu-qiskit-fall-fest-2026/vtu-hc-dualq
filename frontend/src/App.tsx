@@ -17,20 +17,18 @@ import { getStoredUser, setStoredUser } from './data/authData';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(getStoredUser);
-  const [isSwitchingRole, setIsSwitchingRole] = useState<boolean>(false);
   const [activePage, setActivePage] = useState<NavigationPage>('home');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
-  // If not logged in or in the middle of switching accounts/roles, show LoginPage
-  if (!currentUser || isSwitchingRole) {
+  // If not authenticated, require login through the official Banking Portal Login Page
+  if (!currentUser) {
     return (
       <LoginPage 
         onLoginSuccess={(user) => {
           setCurrentUser(user);
           setStoredUser(user);
-          setIsSwitchingRole(false);
         }} 
       />
     );
@@ -98,7 +96,6 @@ export const App: React.FC = () => {
         isMobileOpen={isMobileMenuOpen}
         onCloseMobile={() => setIsMobileMenuOpen(false)}
         currentUser={currentUser}
-        onSwitchRole={() => setIsSwitchingRole(true)}
         onLogout={() => {
           setCurrentUser(null);
           setStoredUser(null);
@@ -114,7 +111,6 @@ export const App: React.FC = () => {
             setCurrentUser(null);
             setStoredUser(null);
           }}
-          onSwitchRole={() => setIsSwitchingRole(true)}
           onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
           onRefresh={() => {
             const el = document.querySelector('.main-wrapper') as HTMLElement | null;

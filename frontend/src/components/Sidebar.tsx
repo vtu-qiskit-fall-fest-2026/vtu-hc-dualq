@@ -11,7 +11,6 @@ import {
   ChevronRight,
   ShieldCheck,
   X,
-  UserCheck,
   LogOut,
   Building2
 } from 'lucide-react';
@@ -25,7 +24,6 @@ interface SidebarProps {
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
   currentUser?: UserProfile | null;
-  onSwitchRole?: () => void;
   onLogout?: () => void;
 }
 
@@ -54,7 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile,
   currentUser,
-  onSwitchRole,
   onLogout
 }) => {
   const handleNavClick = (page: NavigationPage) => {
@@ -213,34 +210,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {onSwitchRole && (
-                <button
-                  onClick={() => {
-                    if (onCloseMobile) onCloseMobile();
-                    onSwitchRole();
-                  }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ flex: 1, fontSize: '11px', padding: '6px' }}
-                >
-                  <UserCheck size={12} />
-                  <span>Switch Role</span>
-                </button>
-              )}
-              {onLogout && (
-                <button
-                  onClick={() => {
-                    if (onCloseMobile) onCloseMobile();
-                    onLogout();
-                  }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ color: 'var(--color-red)', padding: '6px' }}
-                  title="Logout"
-                >
-                  <LogOut size={12} />
-                </button>
-              )}
-            </div>
+            {onLogout && (
+              <button
+                onClick={() => {
+                  if (onCloseMobile) onCloseMobile();
+                  onLogout();
+                }}
+                className="btn btn-secondary btn-sm"
+                style={{ 
+                  width: '100%', 
+                  color: 'var(--color-red)', 
+                  padding: '7px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  border: '1px solid rgba(185, 56, 56, 0.25)',
+                  backgroundColor: 'var(--color-red-subtle)',
+                  cursor: 'pointer'
+                }}
+                title="Sign out of bank session and return to Login"
+              >
+                <LogOut size={13} />
+                <span style={{ fontSize: '11px', fontWeight: 600 }}>Sign Out</span>
+              </button>
+            )}
           </div>
         )}
 

@@ -131,10 +131,10 @@ const AUTH_STORAGE_KEY = "dualq_auth_user";
 export const getStoredUser = (): UserProfile | null => {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return DEMO_PROFILES[0]; // Default logged-in as Senior Risk Officer for convenience
+    if (!raw) return null; // Unauthenticated - land on Login Page according to banking security standards
     return JSON.parse(raw);
   } catch {
-    return DEMO_PROFILES[0];
+    return null;
   }
 };
 

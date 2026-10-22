@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, RefreshCw, Layers, LogOut, UserCheck, Menu } from 'lucide-react';
+import { Bell, RefreshCw, Layers, LogOut, Menu } from 'lucide-react';
 import { NavigationPage, UserProfile } from '../types';
 
 interface TopbarProps {
@@ -7,7 +7,6 @@ interface TopbarProps {
   onRefresh?: () => void;
   currentUser?: UserProfile | null;
   onLogout?: () => void;
-  onSwitchRole?: () => void;
   onOpenMobileMenu?: () => void;
 }
 
@@ -59,7 +58,6 @@ export const Topbar: React.FC<TopbarProps> = ({
   onRefresh, 
   currentUser, 
   onLogout,
-  onSwitchRole,
   onOpenMobileMenu
 }) => {
   const current = PAGE_TITLES[activePage];
@@ -138,9 +136,8 @@ export const Topbar: React.FC<TopbarProps> = ({
               marginLeft: '2px'
             }}
           >
-            {/* Avatar Circle (Tap to switch role on mobile) */}
-            <button
-              onClick={onSwitchRole}
+            {/* Avatar Circle */}
+            <div
               style={{ 
                 width: '30px', 
                 height: '30px', 
@@ -152,14 +149,12 @@ export const Topbar: React.FC<TopbarProps> = ({
                 justifyContent: 'center',
                 fontSize: '11px',
                 fontWeight: 700,
-                border: 'none',
-                cursor: 'pointer',
                 flexShrink: 0
               }}
-              title={`Logged in as ${currentUser.name} - Tap to switch persona`}
+              title={`Authenticated Officer: ${currentUser.name} (${currentUser.roleLabel})`}
             >
               {currentUser.avatarInitials}
-            </button>
+            </div>
 
             {/* Officer Details (Desktop) */}
             <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -185,30 +180,26 @@ export const Topbar: React.FC<TopbarProps> = ({
               </span>
             </div>
 
-            {/* Switch Role Button (Desktop) */}
-            {onSwitchRole && (
-              <button
-                type="button"
-                onClick={onSwitchRole}
-                className="btn btn-secondary btn-sm desktop-only"
-                title="Switch institutional role / banking persona"
-                style={{ padding: '3px 6px', fontSize: '11px' }}
-              >
-                <UserCheck size={12} />
-                <span>Switch</span>
-              </button>
-            )}
-
-            {/* Sign Out Button (Desktop) */}
+            {/* Sign Out Button */}
             {onLogout && (
               <button
                 type="button"
                 onClick={onLogout}
-                className="btn btn-secondary btn-sm desktop-only"
-                title="Sign out of bank session"
-                style={{ padding: '3px 6px', color: 'var(--color-red)' }}
+                className="btn btn-secondary btn-sm"
+                title="Sign out of bank session and return to Login"
+                style={{ 
+                  padding: '4px 10px', 
+                  color: 'var(--color-red)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '5px',
+                  border: '1px solid rgba(185, 56, 56, 0.25)',
+                  backgroundColor: 'var(--color-red-subtle)',
+                  cursor: 'pointer'
+                }}
               >
                 <LogOut size={12} />
+                <span className="desktop-only" style={{ fontSize: '11px', fontWeight: 600 }}>Sign Out</span>
               </button>
             )}
           </div>
