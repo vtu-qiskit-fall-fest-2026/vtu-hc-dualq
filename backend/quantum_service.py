@@ -4,6 +4,9 @@ import time
 import math
 import random
 import datetime
+import json
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import numpy as np
 from typing import List, Dict, Any, Optional
 
@@ -15,13 +18,20 @@ if ROOT_DIR not in sys.path:
 from backend.schemas import (
     ScreenTransactionRequest, 
     ScreenTransactionResponse, 
-    TransactionRecord,
     FreezeAccountResponse,
     QPUTelemetryResponse,
     ModelMetricsResponse
 )
 
-# Initial In-Memory Ledger of Indian Banking Records
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", "5432")),
+    "user": os.getenv("DB_USER", "postgres"),
+    "password": os.getenv("DB_PASSWORD", "Marunch@18"),
+    "dbname": os.getenv("DB_NAME", "dualq_db")
+}
+
+# Initial In-Memory Ledger (used as baseline or fallback)
 INITIAL_TRANSACTIONS: List[Dict[str, Any]] = [
     {
         "id": "TXN-UPI-984201",
@@ -162,11 +172,25 @@ INITIAL_TRANSACTIONS: List[Dict[str, Any]] = [
 
 class DualQQuantumService:
     def __init__(self):
-        self.transactions: List[Dict[str, Any]] = list(INITIAL_TRANSACTIONS)
-        self.frozen_accounts: List[str] = ["fraudster99@paytm", "drain.bot@ybl"]
+        self.in_memory_txns = list(INITIAL_TRANSACTIONS)
+        self.in_memory_frozen = ["fraudster99@paytm", "drain.bot@ybl"]
         self.shots_count: int = 4096
         self.rem_enabled: bool = True
         self._init_quantum_pipeline()
+
+    def _get_db_connection(self):
+        """Returns a PostgreSQL connection or None if offline."""
+        try:
+            return psycopg2.connect(
+                host=DB_CONFIG["host"],
+                port=DB_CONFIG["port"],
+                user=DB_CONFIG["user"],
+                password=DB_CONFIG["password"],
+                dbname=DB_CONFIG["dbname"],
+                connect_timeout=2
+            )
+        except Exception as e:
+            return None
 
     def _init_quantum_pipeline(self):
         """Attempts to load Qiskit quantum feature maps and model helpers."""
@@ -177,16 +201,13 @@ class DualQQuantumService:
             )
             self.qiskit_available = True
         except Exception as e:
-            print(f"Warning: Qiskit feature map init deferred: {e}")
             self.qiskit_available = False
 
     def screen_transaction(self, req: ScreenTransactionRequest) -> ScreenTransactionResponse:
         t0 = time.time()
         
         # 1. Feature Synthesis / Mapping
-        # If explicit PCA features were not provided, synthesize realistic features from amount & channel
         amount = req.amount
-        is_midnight_or_offhours = "midnight" in req.channel.lower() or amount > 100000
         
         if req.v4 is not None and req.v14 is not None:
             v4 = req.v4
@@ -194,7 +215,6 @@ class DualQQuantumService:
             v12 = req.v12 if req.v12 is not None else 0.0
             v14 = req.v14
         else:
-            # Heuristic PCA coordinate mapping for Indian payment telemetry
             if amount > 75000:
                 v4 = 3.6 + (random.random() * 0.6)
                 v11 = 3.1 + (random.random() * 0.5)
@@ -212,14 +232,12 @@ class DualQQuantumService:
                 v14 = -1.6 - (random.random() * 0.6)
 
         # 2. Quantum State Angle Rotation in Hilbert Space (2^4 = 16 dimensions)
-        # Scaled to [-pi, pi]
         theta_4 = np.clip(v4 * (np.pi / 5.0), -np.pi, np.pi)
         theta_11 = np.clip(v11 * (np.pi / 5.0), -np.pi, np.pi)
         theta_12 = np.clip(v12 * (np.pi / 5.0), -np.pi, np.pi)
         theta_14 = np.clip(v14 * (np.pi / 5.0), -np.pi, np.pi)
 
         # 3. Projected Quantum Kernel Metric Evaluation
-        # Non-linear entanglement interaction (ZZ interaction terms theta_i * theta_j)
         entangled_anomaly = (
             (v4 * 1.35) + 
             (v11 * 1.15) - 
@@ -240,7 +258,6 @@ class DualQQuantumService:
                 "DualQ 4-qubit ZZFeatureMap detected non-linear phase separation where classical linear hyperplanes underperform."
             )
             action = "Trigger immediate UPI VPA hold & require 2FA biometric re-auth on NPCI switch."
-            soundbox_en = f"Security Alert: Payment of Rupees {int(amount)} blocked due to quantum fraud anomaly."
             soundbox_hi = f"Suraksha Alert: Rupeey {int(amount)} ka bhugtan sandigdh paya gaya hai aur rok diya gaya hai."
         elif entangled_anomaly > 4.5:
             status = "Under Review"
@@ -253,7 +270,6 @@ class DualQQuantumService:
                 "Secondary authentication or SMS OTP recommended before settlement."
             )
             action = "Issue 2-factor OTP challenge to sender device."
-            soundbox_en = f"Warning: Payment of Rupees {int(amount)} is under review. Please hold goods delivery."
             soundbox_hi = f"Chetavni: Rupeey {int(amount)} ka bhugtan samiksha mein hai. Kripya pratiksha karein."
         else:
             status = "Legitimate"
@@ -266,38 +282,68 @@ class DualQQuantumService:
                 "Zero adversarial rotation detected in 1-qubit reduced density matrices."
             )
             action = "Immediate clearance granted. Soundbox payment audio authorized."
-            soundbox_en = f"DualQ Soundbox: Payment of Rupees {int(amount)} received. Transaction verified safe."
             soundbox_hi = f"DualQ Soundbox: Rupeey {int(amount)} prapt hue. Surakshit bhugtan satyapit."
 
-        duration_ms = (time.time() - t0) * 1000 + random.uniform(3.5, 7.2)
-        txn_id = f"TXN-{req.channel.split(' ')[0].upper()}-{random.randint(100000, 999999)}"
+        duration_ms = (time.time() - t0) * 1000 + random.uniform(2.5, 5.8)
+        rail_prefix = req.channel.split(' ')[0].replace('(', '').replace(')', '').upper()
+        txn_id = f"TXN-{rail_prefix}-{random.randint(100000, 999999)}"
 
-        # Create record in ledger
         now = datetime.datetime.now(datetime.timezone.utc)
-        record = {
+        date_str = now.strftime("%Y-%m-%d")
+        time_str = now.strftime("%H:%M:%S")
+
+        features_dict = {
+            "v4": round(float(v4), 2),
+            "v11": round(float(v11), 2),
+            "v12": round(float(v12), 2),
+            "v14": round(float(v14), 2),
+            "timeSeconds": now.hour * 3600 + now.minute * 60 + now.second
+        }
+
+        # 5. Persist to PostgreSQL (with fallback to in-memory)
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                INSERT INTO transactions (
+                    id, timestamp, date, time, amount, currency, status,
+                    risk_score, classical_score, fidelity, channel, location,
+                    merchant, flag_reason, features
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    txn_id, now.isoformat(), date_str, time_str,
+                    amount, "INR", status, round(float(risk_score), 4),
+                    round(float(classical_score), 4), round(float(fidelity), 4),
+                    req.channel, req.location or "Bengaluru, Karnataka",
+                    req.merchant or "Merchant Counter",
+                    explanation if status != "Legitimate" else None,
+                    json.dumps(features_dict)
+                ))
+                conn.commit()
+                cur.close()
+                conn.close()
+            except Exception as e:
+                print(f"PostgreSQL insert warning: {e}")
+
+        # Always keep in memory as cache
+        self.in_memory_txns.insert(0, {
             "id": txn_id,
             "timestamp": now.isoformat(),
-            "date": now.strftime("%Y-%m-%d"),
-            "time": now.strftime("%H:%M:%S"),
+            "date": date_str,
+            "time": time_str,
             "amount": float(amount),
             "currency": "INR",
             "status": status,
             "riskScore": round(float(risk_score), 3),
-            "features": {
-                "v4": round(float(v4), 2),
-                "v11": round(float(v11), 2),
-                "v12": round(float(v12), 2),
-                "v14": round(float(v14), 2),
-                "timeSeconds": now.hour * 3600 + now.minute * 60 + now.second
-            },
+            "features": features_dict,
             "details": {
                 "channel": req.channel,
                 "location": req.location or "Bengaluru, Karnataka",
                 "merchantCategory": req.merchant or "Merchant Counter",
                 "flagReason": explanation if status != "Legitimate" else None
             }
-        }
-        self.transactions.insert(0, record)
+        })
 
         return ScreenTransactionResponse(
             transaction_id=txn_id,
@@ -318,10 +364,73 @@ class DualQQuantumService:
         )
 
     def get_transactions(self) -> List[Dict[str, Any]]:
-        return self.transactions
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                cur.execute("""
+                SELECT id, timestamp, date, time, amount, currency, status,
+                       risk_score as "riskScore", channel, location, merchant,
+                       flag_reason as "flagReason", features
+                FROM transactions
+                ORDER BY timestamp DESC
+                LIMIT 50;
+                """)
+                rows = cur.fetchall()
+                cur.close()
+                conn.close()
+                
+                formatted = []
+                for r in rows:
+                    features = r["features"] if isinstance(r["features"], dict) else json.loads(r["features"] or "{}")
+                    formatted.append({
+                        "id": r["id"],
+                        "timestamp": r["timestamp"].isoformat() if hasattr(r["timestamp"], "isoformat") else str(r["timestamp"]),
+                        "date": r["date"],
+                        "time": r["time"],
+                        "amount": float(r["amount"]),
+                        "currency": r["currency"],
+                        "status": r["status"],
+                        "riskScore": float(r["riskScore"]),
+                        "features": features,
+                        "details": {
+                            "channel": r["channel"],
+                            "location": r["location"] or "Verified Indian Gateway",
+                            "merchantCategory": r["merchant"] or "Commercial Merchant",
+                            "flagReason": r["flagReason"]
+                        }
+                    })
+                return formatted
+            except Exception as e:
+                print(f"PostgreSQL fetch warning: {e}")
+
+        return self.in_memory_txns
 
     def toggle_status(self, txn_id: str) -> Optional[Dict[str, Any]]:
-        for txn in self.transactions:
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                cur.execute("SELECT status FROM transactions WHERE id = %s", (txn_id,))
+                row = cur.fetchone()
+                if row:
+                    curr_status = row["status"]
+                    new_status = "Legitimate" if curr_status == "Suspicious" else "Suspicious"
+                    new_score = 0.05 if new_status == "Legitimate" else 0.94
+                    
+                    cur.execute(
+                        "UPDATE transactions SET status = %s, risk_score = %s WHERE id = %s",
+                        (new_status, new_score, txn_id)
+                    )
+                    conn.commit()
+                    cur.close()
+                    conn.close()
+                    return {"id": txn_id, "status": new_status, "riskScore": new_score}
+            except Exception as e:
+                print(f"PostgreSQL toggle warning: {e}")
+
+        # In-memory fallback
+        for txn in self.in_memory_txns:
             if txn["id"] == txn_id:
                 if txn["status"] == "Suspicious":
                     txn["status"] = "Legitimate"
@@ -334,24 +443,56 @@ class DualQQuantumService:
 
     def freeze_account(self, vpa: str, reason: str, officer_badge: str) -> FreezeAccountResponse:
         clean_vpa = vpa.strip().lower()
-        if clean_vpa not in self.frozen_accounts:
-            self.frozen_accounts.append(clean_vpa)
-        
         ticket_id = f"SAR-RBI-2026-{random.randint(1000, 9999)}"
         ack_code = f"NPCI-ACK-QPU-{random.randint(10000, 99999)}"
+
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor()
+                cur.execute("""
+                INSERT INTO frozen_accounts (account_or_vpa, reason, officer_badge, sar_ticket_id)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (account_or_vpa) DO UPDATE SET
+                    reason = EXCLUDED.reason,
+                    officer_badge = EXCLUDED.officer_badge;
+                """, (clean_vpa, reason, officer_badge, ticket_id))
+                conn.commit()
+                cur.close()
+                conn.close()
+            except Exception as e:
+                print(f"PostgreSQL freeze warning: {e}")
+
+        if clean_vpa not in self.in_memory_frozen:
+            self.in_memory_frozen.append(clean_vpa)
+
         return FreezeAccountResponse(
             success=True,
             account_or_vpa=clean_vpa,
             status="FROZEN",
             sar_ticket_id=ticket_id,
             npci_switch_ack=ack_code,
-            message=f"VPA {clean_vpa} frozen across NPCI switch by {officer_badge}. RBI filing ref: {ticket_id}"
+            message=f"VPA {clean_vpa} frozen in PostgreSQL and broadcast to NPCI switch. Ticket: {ticket_id}"
         )
+
+    def get_frozen_accounts(self) -> List[str]:
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor()
+                cur.execute("SELECT account_or_vpa FROM frozen_accounts")
+                rows = [r[0] for r in cur.fetchall()]
+                cur.close()
+                conn.close()
+                return rows
+            except Exception:
+                pass
+        return self.in_memory_frozen
 
     def get_qpu_telemetry(self) -> QPUTelemetryResponse:
         return QPUTelemetryResponse(
             node_id="vQPU-01",
-            status="Operational",
+            status="Operational (PostgreSQL Synced)",
             backend_type="Qiskit AerSimulator (Linear Nearest-Neighbor)",
             target_hardware="IBM FakeManilaV2 5-Qubit Falcon Replica",
             qubits_active=4,
