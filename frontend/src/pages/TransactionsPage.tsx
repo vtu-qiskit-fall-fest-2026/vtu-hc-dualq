@@ -1,15 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TransactionTable } from '../components/TransactionTable';
 import { INITIAL_TRANSACTIONS } from '../data/mockData';
 import { Transaction } from '../types';
-import { Download, ShieldCheck, ShieldAlert, Clock } from 'lucide-react';
+import { Download, ShieldCheck, ShieldAlert, Clock, RefreshCw, Database } from 'lucide-react';
+import { fetchTransactions } from '../services/api';
 
 interface TransactionsPageProps {
   onSelectTransaction: (txn: Transaction) => void;
 }
 
 export const TransactionsPage: React.FC<TransactionsPageProps> = ({ onSelectTransaction }) => {
-  const [transactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
+  const [isLiveFromDb, setIsLiveFromDb] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const loadLiveTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchTransactions();
+      if (data && Array.isArray(data) && data.length > 0) {
+        setTransactions(data);
+        setIsLiveFromDb(true);
+      }
+    } catch (e) {
+      console.warn('Failed to fetch PostgreSQL transactions, using mock fallback', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLiveTransactions();
+  }, []);
 
   const totalCount = transactions.length;
   const suspiciousCount = transactions.filter(t => t.status === 'Suspicious').length;
@@ -67,10 +89,39 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({ onSelectTran
             </div>
           </div>
 
-          <button onClick={handleExport} className="btn btn-secondary btn-sm">
-            <Download size={13} />
-            <span>Export CSV</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span 
+              className="badge" 
+              style={{ 
+                backgroundColor: isLiveFromDb ? 'var(--color-green-subtle)' : '#F1F3F5',
+                color: isLiveFromDb ? 'var(--color-green)' : 'var(--text-secondary)',
+                border: `1px solid ${isLiveFromDb ? 'var(--color-green)' : 'var(--color-border)'}`,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11px',
+                padding: '3px 8px'
+              }}
+            >
+              <Database size={11} />
+              {isLiveFromDb ? 'PostgreSQL dualq_db (Live)' : 'Mock Ledger (Offline)'}
+            </span>
+
+            <button 
+              onClick={loadLiveTransactions} 
+              disabled={isLoading}
+              className="btn btn-secondary btn-sm"
+              title="Sync latest records from local PostgreSQL database"
+            >
+              <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
+              <span>{isLoading ? 'Syncing...' : 'Sync DB'}</span>
+            </button>
+
+            <button onClick={handleExport} className="btn btn-secondary btn-sm">
+              <Download size={13} />
+              <span>Export CSV</span>
+            </button>
+          </div>
         </div>
 
         <TransactionTable

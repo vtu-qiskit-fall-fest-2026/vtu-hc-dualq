@@ -41,7 +41,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { screenTransaction } from '../services/api';
+import { screenTransaction, fetchTransactions } from '../services/api';
 
 interface OverviewPageProps {
   onSelectTransaction: (txn: Transaction) => void;
@@ -68,6 +68,30 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   const [transactionsList, setTransactionsList] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [tableTab, setTableTab] = useState<'ALL' | 'SUSPICIOUS' | 'SOUNDBOX' | 'RUPAY'>('ALL');
   const [tableSearch, setTableSearch] = useState<string>('');
+  const [isDbSynced, setIsDbSynced] = useState<boolean>(false);
+  const [isLoadingDb, setIsLoadingDb] = useState<boolean>(false);
+
+  const loadDbTransactions = async (showToast = false) => {
+    setIsLoadingDb(true);
+    try {
+      const data = await fetchTransactions();
+      if (data && Array.isArray(data) && data.length > 0) {
+        setTransactionsList(data);
+        setIsDbSynced(true);
+        if (showToast) {
+          setToastMessage({ type: 'success', text: `Synchronized ${data.length} records from PostgreSQL (dualq_db).` });
+        }
+      }
+    } catch {
+      // Fallback smoothly to initial data
+    } finally {
+      setIsLoadingDb(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDbTransactions(false);
+  }, []);
 
   // Interactive Live Toast feedback
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'info' | 'warning'; text: string } | null>(null);
@@ -1416,6 +1440,33 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 💳 RuPay
               </button>
             </div>
+
+            <span 
+              className="badge" 
+              style={{ 
+                backgroundColor: isDbSynced ? 'var(--color-green-subtle)' : '#F1F3F5',
+                color: isDbSynced ? 'var(--color-green)' : 'var(--text-secondary)',
+                border: `1px solid ${isDbSynced ? 'var(--color-green)' : 'var(--color-border)'}`,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11px',
+                padding: '3px 8px'
+              }}
+            >
+              <Database size={11} />
+              {isDbSynced ? 'PostgreSQL dualq_db' : 'Mock Fallback'}
+            </span>
+
+            <button 
+              onClick={() => loadDbTransactions(true)}
+              disabled={isLoadingDb}
+              className="btn btn-secondary btn-sm"
+              title="Sync latest live records from local PostgreSQL database"
+            >
+              <RefreshCw size={12} className={isLoadingDb ? 'animate-spin' : ''} />
+              <span className="desktop-only">{isLoadingDb ? 'Syncing...' : 'Sync DB'}</span>
+            </button>
 
             <button 
               onClick={() => onNavigate('transactions')} 
