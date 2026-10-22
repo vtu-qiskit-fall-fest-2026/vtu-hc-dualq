@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { MetricCard } from '../components/MetricCard';
 import { INITIAL_TRANSACTIONS, HOURLY_VOLUME_DATA, DAILY_DISTRIBUTION_DATA } from '../data/mockData';
-import { DEMO_PROFILES } from '../data/authData';
 import { Transaction, NavigationPage, UserProfile, TransactionStatus } from '../types';
 import { 
   BarChart, 
@@ -470,111 +469,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
       )}
 
-      {/* 1. INTERACTIVE PERSONA SWITCHER BAR */}
-      <div 
-        style={{ 
-          backgroundColor: '#FFFFFF', 
-          border: '1px solid var(--color-border)', 
-          borderRadius: 'var(--card-radius)', 
-          padding: '14px 18px', 
-          marginBottom: '20px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Operational Persona & Banking Role
-              </span>
-              <span className="badge badge-neutral" style={{ fontSize: '10px' }}>
-                Interactive Switcher
-              </span>
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              Click any profile below to preview how DualQ functions for different institutional users:
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isLiveStreaming ? 'var(--color-green)' : '#9AA2AF' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, color: isLiveStreaming ? 'var(--color-green)' : 'var(--text-secondary)' }}>
-              {isLiveStreaming ? 'vQPU Live Stream Synced' : 'Stream Paused'}
-            </span>
-            <button
-              onClick={() => setIsLiveStreaming(!isLiveStreaming)}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '10px', padding: '2px 8px' }}
-              title="Toggle live telemetry stream"
-            >
-              {isLiveStreaming ? <Pause size={10} /> : <Play size={10} />}
-              <span>{isLiveStreaming ? 'Pause' : 'Resume'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Persona Segmented Buttons */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '10px' }}>
-          {DEMO_PROFILES.map((profile) => {
-            const isActive = currentUser?.id === profile.id;
-            return (
-              <button
-                key={profile.id}
-                onClick={() => {
-                  if (onUserChange) onUserChange(profile);
-                  setToastMessage({
-                    type: 'info',
-                    text: `Switched view to ${profile.roleLabel} (${profile.institution})`
-                  });
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '10px 12px',
-                  borderRadius: '6px',
-                  border: isActive ? '2px solid var(--color-blue)' : '1px solid var(--color-border)',
-                  backgroundColor: isActive ? 'var(--color-blue-subtle)' : '#FFFFFF',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div 
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '6px',
-                    backgroundColor: isActive ? 'var(--color-blue)' : '#F1F3F6',
-                    color: isActive ? '#FFFFFF' : 'var(--text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    flexShrink: 0
-                  }}
-                >
-                  {profile.avatarInitials}
-                </div>
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: isActive ? 'var(--color-blue)' : 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {profile.name}
-                  </div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {profile.roleLabel}
-                  </div>
-                  <div style={{ fontSize: '9px', color: isActive ? 'var(--color-blue)' : '#8C97A7', marginTop: '1px' }}>
-                    {profile.institution.split(' ')[0]} &bull; {profile.badgeNumber}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 2. INTERACTIVE TIME & PAYMENT RAIL CONTROLS */}
+      {/* 1. INTERACTIVE TIME & PAYMENT RAIL CONTROLS */}
       <div 
         style={{ 
           display: 'flex', 
@@ -612,7 +507,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           ))}
         </div>
 
-        {/* Payment Rail Filter */}
+        {/* Payment Rail Filter & Stream Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', overflowX: 'auto', maxWidth: '100%' }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', flexShrink: 0 }}>Rails:</span>
           {[
@@ -645,6 +540,32 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             </button>
           ))}
 
+          {/* Live Telemetry Stream Indicator */}
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              padding: '3px 8px', 
+              backgroundColor: '#FFFFFF', 
+              border: '1px solid var(--color-border)', 
+              borderRadius: '4px',
+              fontSize: '11px' 
+            }}
+          >
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: isLiveStreaming ? 'var(--color-green)' : '#9AA2AF' }} />
+            <span style={{ fontSize: '10px', fontWeight: 600, color: isLiveStreaming ? 'var(--color-green)' : 'var(--text-secondary)' }}>
+              {isLiveStreaming ? 'Live' : 'Paused'}
+            </span>
+            <button
+              onClick={() => setIsLiveStreaming(!isLiveStreaming)}
+              style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '1px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center' }}
+              title="Toggle live telemetry stream"
+            >
+              {isLiveStreaming ? <Pause size={10} /> : <Play size={10} />}
+            </button>
+          </div>
+
           {/* Simulate Live Payment Button */}
           <button
             onClick={handleSimulateIncomingTxn}
@@ -653,7 +574,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             title="Inject a real-time incoming transaction through the quantum pipeline"
           >
             <PlusCircle size={13} />
-            <span>Simulate Incoming ₹ Txn</span>
+            <span>Simulate ₹ Txn</span>
           </button>
         </div>
       </div>

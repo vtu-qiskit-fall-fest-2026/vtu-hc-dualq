@@ -21,7 +21,6 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { NavigationPage, UserProfile, TransactionStatus } from '../types';
-import { DEMO_PROFILES } from '../data/authData';
 import { screenTransaction, ScreenResponse } from '../services/api';
 
 interface HomePageProps {
@@ -712,51 +711,6 @@ export const HomePage: React.FC<HomePageProps> = ({
             <pre style={{ margin: 0 }}>{JSON.stringify(simulationResult, null, 2)}</pre>
           </div>
         )}
-      </div>
-
-      {/* 6. SWITCH BANKING PERSONA FOOTER */}
-      <div 
-        style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--card-radius)',
-          padding: '16px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}
-      >
-        <div>
-          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
-            Institutional Demo Personas
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-            Switch between bank entities to experience tailored risk dashboards:
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {DEMO_PROFILES.map((profile) => (
-            <button
-              key={profile.id}
-              onClick={() => onUserChange && onUserChange(profile)}
-              style={{
-                border: currentUser?.id === profile.id ? '2px solid var(--color-blue)' : '1px solid var(--color-border)',
-                backgroundColor: currentUser?.id === profile.id ? 'var(--color-blue-subtle)' : '#FFFFFF',
-                color: currentUser?.id === profile.id ? 'var(--color-blue)' : 'var(--text-primary)',
-                padding: '5px 10px',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              {profile.institution.split(' ')[0]} ({profile.name.split(' ')[0]})
-            </button>
-          ))}
-        </div>
       </div>
 
     </div>
