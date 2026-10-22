@@ -41,6 +41,10 @@ export const App: React.FC = () => {
             onSelectTransaction={setSelectedTransaction}
             onNavigate={setActivePage}
             currentUser={currentUser}
+            onUserChange={(user) => {
+              setCurrentUser(user);
+              setStoredUser(user);
+            }}
           />
         );
       case 'transactions':
