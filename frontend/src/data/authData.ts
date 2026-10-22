@@ -126,7 +126,7 @@ export const DEMO_PROFILES: UserProfile[] = [
   }
 ];
 
-const AUTH_STORAGE_KEY = "bharatshield_auth_user";
+const AUTH_STORAGE_KEY = "dualq_auth_user";
 
 export const getStoredUser = (): UserProfile | null => {
   try {

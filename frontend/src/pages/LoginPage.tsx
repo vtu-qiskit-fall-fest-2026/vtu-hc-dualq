@@ -91,7 +91,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           </div>
           <div>
             <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-              BharatShield
+              DualQ
             </div>
             <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
               National Quantum Banking Fraud Prevention & Audit Gateway
@@ -448,7 +448,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         <div style={{ display: 'flex', gap: '16px' }}>
           <span>AES-256 HSM Enclave</span>
           <span>Zero Cloud PII Leakage</span>
-          <span>Version: BharatShield-v2.6-QPU</span>
+          <span>Version: DualQ-v2.6-QPU</span>
         </div>
       </div>
     </div>

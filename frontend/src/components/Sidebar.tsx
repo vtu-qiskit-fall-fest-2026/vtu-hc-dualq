@@ -74,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed ? (
           <div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-              BharatShield
+              DualQ
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic', letterSpacing: '0.02em' }}>
               Quantum Fraud Analytics

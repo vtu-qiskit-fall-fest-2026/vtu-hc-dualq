@@ -1,4 +1,4 @@
-# 🛡️ BharatShield: Quantum Fraud Detection Platform (DualQ)
+# 🛡️ DualQ: Quantum Fraud Detection Platform
 ### Quantum Support Vector Machines (QSVM) for Indian Payment Rails (UPI, IMPS, RuPay)
 #### VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026
 
@@ -46,7 +46,7 @@
 
 ## 💡 Proposed Solution
 
-**BharatShield** is an end-to-end Quantum Fraud Detection Platform powered by **Qiskit**, **Qiskit Machine Learning**, and an on-premise **Virtual QPU engine**. Instead of treating transactions as flat vectors in a classical table, BharatShield rotates transaction features into quantum wave states within an exponentially large Hilbert space ($2^N$), allowing a Quantum Support Vector Machine to discover separating hyperplanes that are mathematically inaccessible to classical RBF kernels.
+**DualQ** is an end-to-end Quantum Fraud Detection Platform powered by **Qiskit**, **Qiskit Machine Learning**, and an on-premise **Virtual QPU engine**. Instead of treating transactions as flat vectors in a classical table, DualQ rotates transaction features into quantum wave states within an exponentially large Hilbert space ($2^N$), allowing a Quantum Support Vector Machine to discover separating hyperplanes that are mathematically inaccessible to classical RBF kernels.
 
 ### Key Technical Highlights:
 1. **Projected Quantum Kernels (PQK):** Mitigates Hilbert space barren plateaus and exponential concentration by evaluating 1-qubit reduced density matrices ($\rho_k$).
@@ -95,7 +95,7 @@ graph TD
     E1 --> F1[Execution Engine<br/>On-Prem vQPU / FakeManilaV2 Noise Replica]
     E1 --> F2[Classical Baselines<br/>RBF-SVM, Balanced Random Forest]
     
-    F1 & F2 --> G[BharatShield Web Dashboard<br/>React 19 + TypeScript + Vite]
+    F1 & F2 --> G[DualQ Web Dashboard<br/>React 19 + TypeScript + Vite]
 ```
 
 ---
@@ -307,6 +307,6 @@ Released under the [MIT License](LICENSE). See `LICENSE` for details.
 **DualQ** · Team ID `VTU-QFF-HC-0079` · Tier `Both`  
 Built with ⚛️ Qiskit for the **VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026**
 
-[⬆ Back to Top](#️-bharatshield-quantum-fraud-detection-platform-dualq)
+[⬆ Back to Top](#️-dualq-quantum-fraud-detection-platform)
 
 </div>
