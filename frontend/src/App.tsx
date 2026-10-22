@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
 import { MobileNav } from './components/MobileNav';
 import { TransactionDetails } from './components/TransactionDetails';
+import { HomePage } from './pages/HomePage';
 import { OverviewPage } from './pages/OverviewPage';
 import { TransactionsPage } from './pages/TransactionsPage';
 import { FraudDetectionPage } from './pages/FraudDetectionPage';
@@ -17,7 +18,7 @@ import { getStoredUser, setStoredUser } from './data/authData';
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(getStoredUser);
   const [isSwitchingRole, setIsSwitchingRole] = useState<boolean>(false);
-  const [activePage, setActivePage] = useState<NavigationPage>('overview');
+  const [activePage, setActivePage] = useState<NavigationPage>('home');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -37,6 +38,17 @@ export const App: React.FC = () => {
 
   const renderActivePage = () => {
     switch (activePage) {
+      case 'home':
+        return (
+          <HomePage
+            onNavigate={setActivePage}
+            currentUser={currentUser}
+            onUserChange={(user) => {
+              setCurrentUser(user);
+              setStoredUser(user);
+            }}
+          />
+        );
       case 'overview':
         return (
           <OverviewPage

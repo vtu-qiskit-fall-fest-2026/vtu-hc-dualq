@@ -1,4 +1,5 @@
 export type NavigationPage = 
+  | 'home'
   | 'overview'
   | 'transactions'
   | 'detection'

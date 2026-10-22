@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   X,
   UserCheck,
-  LogOut
+  LogOut,
+  Building2
 } from 'lucide-react';
 import { NavigationPage, UserProfile } from '../types';
 
@@ -35,10 +36,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { id: 'home', label: 'Banking Portal', icon: Building2 },
+  { id: 'overview', label: 'Risk Operations', icon: LayoutDashboard },
+  { id: 'transactions', label: 'Audit Ledger', icon: ArrowLeftRight },
   { id: 'detection', label: 'Fraud Detection', icon: ShieldAlert },
-  { id: 'performance', label: 'Model Performance', icon: ChartNoAxesCombined },
+  { id: 'performance', label: 'RBI Benchmarks', icon: ChartNoAxesCombined },
   { id: 'kernel', label: 'Quantum Kernel', icon: Network },
   { id: 'dataset', label: 'Dataset', icon: Database },
   { id: 'settings', label: 'Settings', icon: Settings },

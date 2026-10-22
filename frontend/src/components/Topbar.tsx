@@ -12,6 +12,11 @@ interface TopbarProps {
 }
 
 const PAGE_TITLES: Record<NavigationPage, { title: string; subtitle: string; shortTitle: string }> = {
+  home: { 
+    title: "DualQ National Banking Gateway", 
+    shortTitle: "Banking Portal",
+    subtitle: "Enterprise quantum fraud interception & threat telemetry for Indian financial institutions" 
+  },
   overview: { 
     title: "National Banking Fraud Telemetry", 
     shortTitle: "DualQ Overview",
