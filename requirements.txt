@@ -10,3 +10,7 @@ numpy>=1.26.0
 pandas>=2.2.0
 matplotlib>=3.8.0
 imbalanced-learn>=0.12.0
+
+# FastAPI Microservice Backend
+fastapi>=0.115.0
+uvicorn>=0.30.0

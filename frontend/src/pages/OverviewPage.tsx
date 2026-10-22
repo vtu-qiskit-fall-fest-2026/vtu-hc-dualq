@@ -41,6 +41,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
+import { screenTransaction } from '../services/api';
 
 interface OverviewPageProps {
   onSelectTransaction: (txn: Transaction) => void;
@@ -200,48 +201,33 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     forcedStatus?: TransactionStatus
   ) => {
     setIsScreening(true);
-    setTimeout(() => {
-      const anomalySum = (v4 * 1.3) + (v11 * 1.1) - (v12 * 1.4) - (v14 * 2.1);
-      let status: TransactionStatus = forcedStatus || 'Legitimate';
-      let score = 0.04;
-      let classic = 0.09;
-      let explanation = '';
-      let action = '';
-
-      if (anomalySum > 10 || v14 < -3.5) {
-        status = 'Suspicious';
-        score = Math.min(0.82 + (anomalySum * 0.015), 0.99);
-        classic = Math.min(score - 0.22, 0.72);
-        explanation = `DualQ QSVM mapped features into 4-qubit state space. Critical anomaly detected in V14 (${v14.toFixed(2)}) & V4 (${v4.toFixed(2)}). Classical linear SVM failed to catch this non-linear separation boundary.`;
-        action = 'Auto-hold UPI rail & notify banking officer immediately.';
-      } else if (anomalySum > 4) {
-        status = 'Under Review';
-        score = 0.52 + (anomalySum * 0.02);
-        classic = score - 0.14;
-        explanation = `Quantum feature overlap lies near decision boundary ($|\\langle\\psi(x)|\\psi_0\\rangle|^2 \\approx 0.54$). Secondary authorization or SMS OTP validation recommended.`;
-        action = 'Prompt customer for 2FA biometric confirmation.';
-      } else {
-        status = 'Legitimate';
-        score = Math.max(0.015 + (Math.abs(anomalySum) * 0.005), 0.02);
-        classic = score + 0.05;
-        explanation = `Quantum kernel fidelity aligns cleanly with legitimate transaction cluster ($F > 0.96$). Zero threat signals detected. Safe to process instantly.`;
-        action = 'Instant clearance granted. Soundbox confirmation authorized.';
-      }
-
+    screenTransaction({
+      amount: amt,
+      channel: screenerRail,
+      vpa: screenerVpa,
+      merchant: screenerReason,
+      v4,
+      v11,
+      v12,
+      v14
+    }).then((res) => {
+      const finalStatus = forcedStatus || res.status;
       setScreenerResult({
-        status,
-        riskScore: Number(score.toFixed(3)),
-        classicalScore: Number(classic.toFixed(3)),
-        explanation,
-        hilbertDistance: Number((Math.abs(anomalySum) + 1.2).toFixed(2)),
-        recommendedAction: action
+        status: finalStatus,
+        riskScore: res.risk_score,
+        classicalScore: res.classical_score,
+        explanation: res.explanation,
+        hilbertDistance: res.hilbert_distance,
+        recommendedAction: res.recommended_action
       });
       setIsScreening(false);
       setToastMessage({
-        type: status === 'Legitimate' ? 'success' : status === 'Suspicious' ? 'warning' : 'info',
-        text: `Quantum scan complete: ₹${amt.toLocaleString('en-IN')} classified as ${status.toUpperCase()} (Risk: ${(score * 100).toFixed(1)}%)`
+        type: finalStatus === 'Legitimate' ? 'success' : finalStatus === 'Suspicious' ? 'warning' : 'info',
+        text: `Quantum engine (vQPU-01): ₹${amt.toLocaleString('en-IN')} classified as ${finalStatus.toUpperCase()} (${res.execution_time_ms}ms)`
       });
-    }, 450);
+    }).catch(() => {
+      setIsScreening(false);
+    });
   };
 
   // Simulate an incoming live transaction
