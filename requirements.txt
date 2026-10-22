@@ -1,6 +1,9 @@
-qiskit>=2.0.0
+# Core Quantum SDK & Machine Learning
+qiskit>=1.0.0
 qiskit-machine-learning>=0.7.0
 qiskit-ibm-runtime>=0.30.0
+
+# Scientific Computing & Data Pipeline
 scikit-learn>=1.4.0
 scipy>=1.12.0
 numpy>=1.26.0
