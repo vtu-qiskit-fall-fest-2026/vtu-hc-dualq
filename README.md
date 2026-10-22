@@ -82,20 +82,23 @@ When $g_{\text{classical}}(K_Q) \gg 1$, the quantum model can efficiently separa
 
 ```mermaid
 graph TD
-    A[Indian Payment Rails<br/>UPI, IMPS, RuPay, RTGS] --> B[FraudDataPipeline<br/>StandardScaler + PCA + Angle Scaler]
-    B --> C1[Imbalance Mitigation<br/>SMOTE / Random Undersampling / Class Weights]
-    B --> C2[Quantum Feature Encoding<br/>ZZFeatureMap / Pauli / Re-uploading]
+    A["Indian Payment Rails<br/>UPI, IMPS, RuPay, RTGS"] --> B["FraudDataPipeline<br/>StandardScaler + PCA + Angle Scaler"]
+    B --> C1["Imbalance Mitigation<br/>SMOTE / Random Undersampling / Class Weights"]
+    B --> C2["Quantum Feature Encoding<br/>ZZFeatureMap / Pauli / Re-uploading"]
     
-    C2 --> D1[Fidelity Quantum Kernel<br/>K = |⟨ψ(x)|ψ(x')⟩|²]
-    C2 --> D2[Projected Quantum Kernel PQK<br/>Huang et al. 1-qubit RDM]
-    C2 --> D3[Trainable KTA Kernel<br/>COBYLA Variational Loop]
+    C2 --> D1["Fidelity Quantum Kernel<br/>State Overlap Fidelity K(x, x')"]
+    C2 --> D2["Projected Quantum Kernel PQK<br/>Huang et al. 1-qubit RDM"]
+    C2 --> D3["Trainable KTA Kernel<br/>COBYLA Variational Loop"]
     
-    D1 & D2 & D3 --> E1[Quantum Classifier Suite<br/>QSVC / Pegasos QSVC / QSVDD]
+    D1 --> E1["Quantum Classifier Suite<br/>QSVC / Pegasos QSVC / QSVDD"]
+    D2 --> E1
+    D3 --> E1
     
-    E1 --> F1[Execution Engine<br/>On-Prem vQPU / FakeManilaV2 Noise Replica]
-    E1 --> F2[Classical Baselines<br/>RBF-SVM, Balanced Random Forest]
+    E1 --> F1["Execution Engine<br/>On-Prem vQPU / FakeManilaV2 Noise Replica"]
+    E1 --> F2["Classical Baselines<br/>RBF-SVM, Balanced Random Forest"]
     
-    F1 & F2 --> G[DualQ Web Dashboard<br/>React 19 + TypeScript + Vite]
+    F1 --> G["DualQ Web Dashboard & API<br/>React 19 + FastAPI + Vite"]
+    F2 --> G
 ```
 
 ---
