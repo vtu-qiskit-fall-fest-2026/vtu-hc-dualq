@@ -228,6 +228,12 @@ source .venv/bin/activate       # Linux / macOS
 # Install Python dependencies
 pip install -r requirements.txt
 
+# Provision local PostgreSQL database (dualq_db) and seed tables (bank_officers, transactions, frozen_accounts)
+python backend/db_setup.py
+
+# Launch FastAPI Quantum Backend & Swagger Documentation (http://127.0.0.1:8000/docs)
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+
 # Run the complete unit test suite (9 tests passing)
 python -m unittest discover tests
 
@@ -250,7 +256,7 @@ python experiments/run_pegasos_qsvm.py
 python experiments/generate_publication_figures.py
 ```
 
-### 2. Frontend Web Dashboard Setup
+### 2. Frontend Banking Portal Setup
 
 ```bash
 # Navigate to frontend directory
