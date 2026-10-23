@@ -74,7 +74,7 @@ This folder contains the official 10-slide presentation deck for **DualQ** prepa
 
 ### Slide 10: Closing
 * **Repository Link**: [https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-dualq.git](https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-dualq.git)
-* **Demo Walkthrough**: [`results/dualq_demo_player.html`](../results/dualq_demo_player.html) (Interactive Walkthrough / Video)
+* **Demo Walkthrough**: [`[results/dualq_demo_player.html](https://drive.google.com/file/d/1lbJ0yZ_c1no-Mmnh5zP0uqF2bva68Foe/view?usp=vids_web)`](../[results/dualq_demo_player.html](https://drive.google.com/file/d/1lbJ0yZ_c1no-Mmnh5zP0uqF2bva68Foe/view?usp=vids_web)) (Interactive Walkthrough / Video)
 
 ---
 
