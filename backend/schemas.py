@@ -80,3 +80,16 @@ class ModelMetricsResponse(BaseModel):
     pr_auc: float
     geometric_difference: float
     kta_score: float
+
+class LoginRequest(BaseModel):
+    email_or_badge: str = Field(..., description="Officer Email address or Badge ID (e.g. HDFC-RISK-4409)")
+    password: Optional[str] = Field(default="password123", description="Officer Password / Security Token")
+    otp_code: Optional[str] = Field(default="849201", description="2FA Token / Hardware OTP")
+    institution_id: Optional[str] = Field(default=None, description="Selected institution identifier")
+
+class LoginResponse(BaseModel):
+    success: bool
+    message: str
+    user: Optional[Dict[str, Any]] = None
+    token: Optional[str] = None
+    auth_source: str = "PostgreSQL dualq_db"

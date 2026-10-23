@@ -99,6 +99,28 @@ def init_postgres():
     );
     """)
 
+    # Bank Officers table (Institutional login details & credentials)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS bank_officers (
+        id VARCHAR(64) PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        email VARCHAR(128) UNIQUE NOT NULL,
+        password_hash VARCHAR(256) NOT NULL,
+        pin_code VARCHAR(16) DEFAULT '849201',
+        role VARCHAR(64) NOT NULL,
+        role_label VARCHAR(128) NOT NULL,
+        institution VARCHAR(128) NOT NULL,
+        institution_type VARCHAR(128) NOT NULL,
+        branch_code VARCHAR(64),
+        badge_number VARCHAR(64) UNIQUE NOT NULL,
+        avatar_initials VARCHAR(8) NOT NULL,
+        permissions JSONB DEFAULT '[]',
+        is_active BOOLEAN DEFAULT TRUE,
+        last_login TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    """)
+
     conn.commit()
 
     # 3. Seed initial Indian payment records
@@ -143,10 +165,109 @@ def init_postgres():
         ON CONFLICT (account_or_vpa) DO NOTHING;
         """, (vpa, reason, badge, ticket))
 
+    # Seed authorized bank officers (Login details)
+    bank_officers_seed = [
+        (
+            "USR-HDFC-01",
+            "Rajesh K. Verma",
+            "rajesh.verma@hdfcbank.com",
+            "sha256:4409:f9c8d20e7a119e992b8c56",
+            "849201",
+            "bank_risk_officer",
+            "Senior Fraud Risk Officer",
+            "HDFC Bank Ltd",
+            "Commercial Bank",
+            "HDFC-MUM-04",
+            "HDFC-RISK-4409",
+            "RV",
+            json.dumps([
+                "Review & Override Suspicious Transactions",
+                "Immediate UPI Account Hold & Release",
+                "Trigger RBI Suspicious Activity Report (SAR)",
+                "Evaluate Quantum Hilbert State Bounds"
+            ])
+        ),
+        (
+            "USR-NPCI-02",
+            "Dr. Sunita Deshmukh",
+            "sunita.deshmukh@npci.org.in",
+            "sha256:0108:a2d8e4f10928b57102e3b1",
+            "849201",
+            "npci_auditor",
+            "Principal Regulatory Auditor",
+            "National Payments Corporation of India",
+            "Central Regulatory Switch",
+            "NPCI-HQ-BKC",
+            "NPCI-AUD-0108",
+            "SD",
+            json.dumps([
+                "National Inter-Bank Velocity Audit",
+                "Cross-Institution Fraud Pattern Tracing",
+                "RBI Master Direction Compliance Export",
+                "Inspect Supervised QSVC Hyperplanes"
+            ])
+        ),
+        (
+            "USR-RELI-03",
+            "Vikramaditya Singhania",
+            "v.singhania@relianceretail.com",
+            "sha256:9281:b4e10982df0912a88471c2",
+            "849201",
+            "merchant_admin",
+            "Enterprise Loss Prevention Lead",
+            "Reliance Retail & JioMart Enterprise",
+            "Enterprise Retailer",
+            "RELI-CORP-NAV",
+            "REL-LP-9281",
+            "VS",
+            json.dumps([
+                "Store POS & Soundbox Fraud Monitor",
+                "Chargeback Prevention & Dispute Filing",
+                "High-Value Order Handover Verification",
+                "Merchant Settlement Risk Analytics"
+            ])
+        ),
+        (
+            "USR-AGY-04",
+            "Ananya Iyer",
+            "ananya.iyer@qpu.quantum.internal",
+            "sha256:0042:c7e89120938b812a01948d",
+            "849201",
+            "qpu_engineer",
+            "Quantum Infrastructure Engineer",
+            "On-Premises Quantum Computing Operations",
+            "Quantum Infrastructure",
+            "QPU-NODE-PRIMARY",
+            "AGY-QPU-0042",
+            "AI",
+            json.dumps([
+                "Virtual QPU Pulse Calibration & Tuning",
+                "M^-1 Readout Error Mitigation Controls",
+                "Feature Map Variational Angle Optimizer (KTA)",
+                "Barren Plateau Spectral Monitoring"
+            ])
+        )
+    ]
+
+    for off in bank_officers_seed:
+        cur.execute("""
+        INSERT INTO bank_officers (
+            id, name, email, password_hash, pin_code, role, role_label,
+            institution, institution_type, branch_code, badge_number,
+            avatar_initials, permissions
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            institution = EXCLUDED.institution,
+            badge_number = EXCLUDED.badge_number,
+            permissions = EXCLUDED.permissions;
+        """, off)
+
     conn.commit()
     cur.close()
     conn.close()
-    print("SUCCESS: PostgreSQL 'dualq_db' is fully provisioned and seeded!", flush=True)
+    print("SUCCESS: PostgreSQL 'dualq_db' is fully provisioned and seeded with transactions, frozen accounts, and bank officers!", flush=True)
 
 if __name__ == "__main__":
     init_postgres()

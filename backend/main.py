@@ -17,7 +17,9 @@ from backend.schemas import (
     FreezeAccountRequest,
     FreezeAccountResponse,
     QPUTelemetryResponse,
-    ModelMetricsResponse
+    ModelMetricsResponse,
+    LoginRequest,
+    LoginResponse
 )
 from backend.quantum_service import quantum_service
 
@@ -165,3 +167,22 @@ def export_sar_compliance_packet():
         "frozen_accounts": quantum_service.frozen_accounts,
         "suspicious_incidents": suspicious
     }
+
+
+@app.post("/api/auth/login", response_model=LoginResponse, tags=["Authentication"])
+def login_officer(request: LoginRequest):
+    """Authenticate banking officer credentials against PostgreSQL dualq_db database."""
+    res = quantum_service.authenticate_officer(request)
+    if not res.success:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=res.message
+        )
+    return res
+
+
+@app.get("/api/auth/officers", tags=["Authentication"])
+def get_authorized_officers():
+    """Retrieve list of authorized banking officers registered in PostgreSQL dualq_db."""
+    return quantum_service.get_officers()
+

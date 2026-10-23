@@ -190,3 +190,43 @@ export async function fetchQpuTelemetry(): Promise<QpuTelemetry | null> {
   }
   return null;
 }
+
+/** Authenticate officer credentials against PostgreSQL dualq_db */
+export async function loginOfficer(credentials: {
+  email_or_badge: string;
+  password?: string;
+  otp_code?: string;
+  institution_id?: string;
+}): Promise<{ success: boolean; message: string; user?: any; token?: string; auth_source?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+      signal: AbortSignal.timeout(3000)
+    });
+    if (res.ok) {
+      return await res.json();
+    } else {
+      const err = await res.json().catch(() => ({ detail: 'Authentication failed' }));
+      return { success: false, message: err.detail || 'Invalid banking credentials' };
+    }
+  } catch (err) {
+    console.warn('Failed to reach authentication server:', err);
+    return { success: false, message: 'Authentication server offline or unreachable' };
+  }
+}
+
+/** Fetch registered bank officers from PostgreSQL dualq_db */
+export async function fetchAuthorizedOfficers(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/officers`, { signal: AbortSignal.timeout(2500) });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Failed to fetch officers from backend:', err);
+  }
+  return [];
+}
+

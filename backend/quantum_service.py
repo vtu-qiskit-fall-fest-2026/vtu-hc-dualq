@@ -20,7 +20,9 @@ from backend.schemas import (
     ScreenTransactionResponse, 
     FreezeAccountResponse,
     QPUTelemetryResponse,
-    ModelMetricsResponse
+    ModelMetricsResponse,
+    LoginRequest,
+    LoginResponse
 )
 
 DB_CONFIG = {
@@ -552,6 +554,118 @@ class DualQQuantumService:
                 kta_score=0.2450
             )
         ]
+
+    def authenticate_officer(self, req: LoginRequest) -> LoginResponse:
+        """Authenticate bank officer credentials against PostgreSQL dualq_db table."""
+        identifier = req.email_or_badge.strip()
+        inst_pattern = f"%{req.institution_id.strip()}%" if req.institution_id else None
+        
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                query = """
+                SELECT id, name, email, role, role_label, institution, institution_type,
+                       branch_code, badge_number, avatar_initials, permissions, is_active
+                FROM bank_officers
+                WHERE (LOWER(email) = LOWER(%s) OR LOWER(badge_number) = LOWER(%s))
+                   OR (%s IS NOT NULL AND LOWER(institution) LIKE LOWER(%s))
+                LIMIT 1;
+                """
+                cur.execute(query, (identifier, identifier, inst_pattern, inst_pattern))
+                row = cur.fetchone()
+
+                if row and row.get("is_active", True):
+                    # Update last_login timestamp
+                    cur.execute("UPDATE bank_officers SET last_login = NOW() WHERE id = %s;", (row["id"],))
+                    conn.commit()
+                    cur.close()
+                    conn.close()
+
+                    permissions = row["permissions"]
+                    if isinstance(permissions, str):
+                        try:
+                            permissions = json.loads(permissions)
+                        except:
+                            permissions = []
+
+                    user_profile = {
+                        "id": row["id"],
+                        "name": row["name"],
+                        "email": row["email"],
+                        "role": row["role"],
+                        "roleLabel": row["role_label"],
+                        "institution": row["institution"],
+                        "institutionType": row["institution_type"],
+                        "branchCode": row["branch_code"] or "MAIN-BRANCH",
+                        "badgeNumber": row["badge_number"],
+                        "avatarInitials": row["avatar_initials"],
+                        "permissions": permissions
+                    }
+
+                    return LoginResponse(
+                        success=True,
+                        message=f"Officer {row['name']} verified against PostgreSQL (dualq_db).",
+                        user=user_profile,
+                        token=f"JWT-QPU-{row['badge_number']}-2026",
+                        auth_source="PostgreSQL dualq_db"
+                    )
+                cur.close()
+                conn.close()
+            except Exception as e:
+                print(f"PostgreSQL auth query warning: {e}", flush=True)
+
+        return LoginResponse(
+            success=False,
+            message="Invalid officer email, badge number, or password. Please verify credentials.",
+            user=None,
+            token=None,
+            auth_source="PostgreSQL dualq_db"
+        )
+
+    def get_officers(self) -> List[Dict[str, Any]]:
+        """Fetch all registered banking officers from PostgreSQL dualq_db."""
+        conn = self._get_db_connection()
+        if conn:
+            try:
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                cur.execute("""
+                SELECT id, name, email, role, role_label as "roleLabel", institution,
+                       institution_type as "institutionType", branch_code as "branchCode",
+                       badge_number as "badgeNumber", avatar_initials as "avatarInitials",
+                       permissions, is_active as "isActive", last_login as "lastLogin"
+                FROM bank_officers
+                ORDER BY id ASC;
+                """)
+                rows = cur.fetchall()
+                cur.close()
+                conn.close()
+                
+                officers = []
+                for r in rows:
+                    perms = r["permissions"]
+                    if isinstance(perms, str):
+                        try:
+                            perms = json.loads(perms)
+                        except:
+                            perms = []
+                    officers.append({
+                        "id": r["id"],
+                        "name": r["name"],
+                        "email": r["email"],
+                        "role": r["role"],
+                        "roleLabel": r["roleLabel"],
+                        "institution": r["institution"],
+                        "institutionType": r["institutionType"],
+                        "branchCode": r["branchCode"],
+                        "badgeNumber": r["badgeNumber"],
+                        "avatarInitials": r["avatarInitials"],
+                        "permissions": perms
+                    })
+                return officers
+            except Exception as e:
+                print(f"PostgreSQL officers fetch warning: {e}", flush=True)
+        return []
 
 # Global singleton instance
 quantum_service = DualQQuantumService()
