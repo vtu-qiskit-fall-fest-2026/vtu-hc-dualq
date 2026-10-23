@@ -60,6 +60,9 @@ data/processed/*.csv
 *.swp
 *.swo
 
-# OS
+# OS & Office
 .DS_Store
 Thumbs.db
+~$*
+*_BACKUP.pptx
+frontend/demo_frames/

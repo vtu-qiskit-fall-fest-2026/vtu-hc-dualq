@@ -27,6 +27,7 @@
 - [System Architecture](#-system-architecture)
 - [Benchmark Results & Empirical Findings](#-benchmark-results--empirical-findings)
 - [Enterprise Fintech Dashboard](#-enterprise-fintech-dashboard)
+- [Hackathon Presentation (PPT)](#-hackathon-presentation-ppt)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [How to Run](#-how-to-run)
@@ -151,6 +152,28 @@ Built with **React 19**, **TypeScript**, and **Vite** under strict enterprise fi
 
 ---
 
+## 📊 Hackathon Presentation (PPT)
+
+The complete official 10-slide presentation deck is located in the dedicated [`ppt/`](./ppt) directory:
+
+- 📥 **Presentation File**: [`ppt/VTU-QFF-HC-079.pptx`](./ppt/VTU-QFF-HC-079.pptx)
+- 📖 **Slide Walkthrough & Technical Notes**: [`ppt/README.md`](./ppt/README.md)
+- **Team**: **DualQ** · **Team ID**: `VTU-QFF-HC-0079` · **Tier**: `Both`
+
+### Slide Breakdown:
+1. **Slide 1: Participant & Team Details** — DualQ project metadata, Track (Both: QML & Finance), Team VTU-QFF-HC-0079, Visvesvaraya Technological University (VTU), India.
+2. **Slide 2: Problem Statement** — High-velocity Indian payment rails (16B+ monthly UPI/IMPS transactions), extreme class imbalance (<0.2%), classical RBF geometric bottlenecks, and RBI 2026 data residency constraints.
+3. **Slide 3: Objectives & Novelty** — Projected Quantum Kernels (PQK) via reduced density matrices ($\rho_k$), Trainable KTA kernels (+60.7% alignment gain), geometric difference diagnostic ($g_{\text{classical}} \gg 1$), and Pegasos $O(1/\epsilon^2)$ subgradient solver.
+4. **Slide 4: Solution & Quantum Advantage** — 16D Hilbert space rotation ($2^4$), 2-tier hybrid processing engine (offline training + sub-6ms on-premise vQPU inference), 1.0000 ROC-AUC & PR-AUC, and institutional PostgreSQL persistence.
+5. **Slide 5: Algorithm & Circuit Design** — Embedded 4-qubit unrolled circuit diagram, second-order $ZZ\text{FeatureMap}$ topology, 8 single-qubit rotations, 6 CNOTs, depth 11, and automated $M^{-1}$ readout error mitigation.
+6. **Slide 6: Implementation & Tech Stack** — IBM Qiskit 1.0+, Qiskit Machine Learning, FastAPI (Python 3.14), PostgreSQL (`dualq_db`) with RealDictCursor, React 19, TypeScript, and Vanilla CSS tokens.
+7. **Slide 7: Results & Analysis** — Embedded PR & ROC diagnostic curves, KTA achieved **1.0000 ROC-AUC & PR-AUC**, Pegasos converged in **1.29s**, and SMOTE elevated minority fraud recall to 50.0%.
+8. **Slide 8: Impact & Real-World Applications** — NPCI Central Switch integration, 4G Merchant Soundbox Shield against QR spoofing/penny-drop velocity attacks, commercial banking risk desks (HDFC, SBI, ICICI) with 1-click freeze, and ₹450+ Crore fraud loss reduction.
+9. **Slide 9: Challenges & Future Scope** — NISQ decoherence mitigation (ZNE/PEC), hybrid Quantum Graph Neural Networks (Q-GNNs) for mule syndicate tracking, physical IBM Quantum hardware migration (Eagle/Heron), and Surface Code error correction.
+10. **Slide 10: Closing** — GitHub repository link and interactive demo player walkthrough.
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
@@ -168,6 +191,9 @@ Built with **React 19**, **TypeScript**, and **Vite** under strict enterprise fi
 
 ```text
 vtu-hc-dualq/
+├── ppt/                          # Official Hackathon Presentation Deck (10 Slides)
+│   ├── VTU-QFF-HC-079.pptx       # Populated IBM Qiskit Fall Fest 2026 PPTX
+│   └── README.md                 # Slide-by-slide guide & presentation documentation
 ├── src/
 │   ├── data_pipeline.py          # Kaggle loader, synthetic generator, PCA, SMOTE/Undersampling
 │   ├── feature_maps.py           # ZZFeatureMap, PauliFeatureMap, DataReuploadingMap
@@ -194,6 +220,9 @@ vtu-hc-dualq/
 │   └── package.json
 ├── results/
 │   ├── figures/                  # 300 DPI high-resolution figures
+│   ├── VTU-QFF-HC-079.pptx       # Presentation copy
+│   ├── dualq_demo_player.html    # Interactive offline demo walkthrough player
+│   ├── dualq_silent_demo.webp    # Silent animated demo walkthrough
 │   └── metrics_summary.json      # Machine-readable evaluation benchmarks
 ├── run_backend_demo.py           # End-to-end Python demo script
 ├── run_custom_qpu.py             # Sub-6ms local vQPU demonstration
@@ -302,6 +331,8 @@ print(counts)
 - [x] All 9 unit tests passing (`python -m unittest discover tests`)
 - [x] 300 DPI publication figures generated in `results/figures/`
 - [x] Full-featured enterprise web dashboard operational
+- [x] Official 10-slide presentation deck added to dedicated `ppt/` folder ([`ppt/VTU-QFF-HC-079.pptx`](ppt/VTU-QFF-HC-079.pptx))
+- [x] Automated silent 2-minute demonstration video and offline player generated ([`results/dualq_demo_player.html`](results/dualq_demo_player.html))
 
 ---
 
